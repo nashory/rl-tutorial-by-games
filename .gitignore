@@ -40,6 +40,9 @@ ttt/
 # virtuaenvironment
 venv
 
+# exceptions
+!banner.jpg
+
 
 
 
