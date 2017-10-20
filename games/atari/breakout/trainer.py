@@ -49,11 +49,13 @@ config = {
     'GAMMA': 0.99,
     'RELAY_BUFFER_SIZE': 1000000,
     'lr':0.001,
-
+    
+    'NUM_ACTIONS':4,
+    'CONSECUTIVE_FRAMES':1,
     'EPS_START': 0.9,
     'EPS_END': 0.05,
     'EPS_DECAY': 200,
-    'EPS_MAX': 200,
+    'EPS_MAX': 2000,
 
     'OPTIMIZER': 'rmsprop',
     'ALGORITHM': 'dqn',
@@ -78,11 +80,12 @@ env.reset()
 #if config['OPTIMIZER'] == 'rmsprop':  optimizer = optim.RMSprop(model.parameters())
 
 # Choose which algorithm to use for training
-if config['ALGORITHM'] == 'dqn':  import algorithms.dqn as algo 
-elif config['ALGORITHM'] == 'ddqn':  import algorithms.ddqn as algo 
-elif config['ALGORITHM'] == 'a2c':  import algorithms.a2c as algo 
-elif config['ALGORITHM'] == 'ppo':  import algorithms.ppo as algo 
-elif config['ALGORITHM'] == 'acktr':  import algorithms.acktr as algo 
+global algo
+if config['ALGORITHM'] == 'dqn':  import algorithms.dqn as al; algo = al.DQN(config) 
+elif config['ALGORITHM'] == 'ddqn':  import algorithms.ddqn as al 
+elif config['ALGORITHM'] == 'a2c':  import algorithms.a2c as al 
+elif config['ALGORITHM'] == 'ppo':  import algorithms.ppo as al 
+elif config['ALGORITHM'] == 'acktr':  import algorithms.acktr as al
 else:   print('wrong algorithms argument!')
 
 
@@ -125,6 +128,9 @@ def plot_duration():
 
 # Now, let's start training!
 num_eps = 5000
+print('# OF ACTION SPACE:' + str(env.action_space))
+print('ACTION NAME:' + str(env.unwrapped.get_action_meanings()))
+
 for eps in range(num_eps):
     # initialize the environment and state.
     env.reset()
@@ -135,9 +141,11 @@ for eps in range(num_eps):
     for iter in count():
         # select and perform an action.
         action = algo.select_action(state)
+        
+        env.render()
         _, reward, done, _ = env.step(action[0,0])
         reward = Tensor([reward])
-        
+       
         # Observe new state.
         last_screen = current_screen
         current_screen = get_screen()
@@ -147,19 +155,24 @@ for eps in range(num_eps):
             next_state = None
 
         # Store the transition to RelayMemory.
-        memory.push(state, action, next_state, reward)
+        algo.update_momory(state, action, next_state, reward)
 
         # move to next state
         state = next_state
         
         # optimization
         algo.optimize()
-        
+       
+        # max episode duration
+        #if iter > config['EPS_MAX']:
+        #    done = True
+
         # plot episode duration. plot after every eps finished.
         if done:
-            episode_duration.append(iter+1)
+            eps_duration.append(iter+1)
             plot_duration()
             break
+
 
 print('Complete')
 env.render(close=True)
