@@ -7,27 +7,27 @@ import torch.nn.functional as F
 
 
 class NetworkSelector():
-    def __init__(self, algo):
+    def __init__(self, algo, consecutive=4, num_actions=2):
         if algo == 'DQN' or algo =='dqn':
-            self.model = DQN()
+            self.model = DQN(consecutive, num_actions)
     
 
 
 class DQN(nn.Module):
-    def __init__(self, in_channels=4, num_actions=2):
+    def __init__(self, consecutive=4, num_actions=2):
         """
         Initialize a deep Q-learning network as described in
         https://storage.googleapis.com/deepmind-data/assets/papers/DeepMindNature14236Paper.pdf
         Arguments:
-            in_channels: number of channel of input.
+            consecutive: number of channel of input.
                 i.e The number of most recent frames stacked together as describe in the paper
             num_actions: number of action-value to output, one-to-one correspondence to action in game.
         """
         super(DQN, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels, 32, kernel_size=8, stride=4)
+        self.conv1 = nn.Conv2d(consecutive*3, 32, kernel_size=8, stride=4)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1)
-        self.fc4 = nn.Linear(7 * 7 * 64, 512)
+        self.fc4 = nn.Linear(6 * 6 * 64, 512)
         self.fc5 = nn.Linear(512, num_actions)
 
     def forward(self, x):
