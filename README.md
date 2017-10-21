@@ -11,6 +11,11 @@ Game collection trained by SOTA reinforcement learning algoritms for tutorial
 + Flappybird
 + Tetris
 
+## Prerequisites
++ PyTorch
++ virtualenv
+
+
 ## How to run?
 to be updated...
 
