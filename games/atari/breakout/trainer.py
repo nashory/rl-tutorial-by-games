@@ -47,11 +47,11 @@ config = {
     'BATCH_SIZE': 32,
     'SAMPLE_SIZE': 80,
     'GAMMA': 0.99,
-    'RELAY_BUFFER_SIZE': 1000000,
-    'lr':0.001,
+    'RELAY_BUFFER_SIZE': 2000,
+    'lr':0.00025,
     
     'NUM_ACTIONS':4,
-    'CONSECUTIVE_FRAMES':1,
+    'FRAME_HISTORY_LEN':4,
     'EPS_START': 0.9,
     'EPS_END': 0.05,
     'EPS_DECAY': 200,
@@ -132,6 +132,7 @@ print('# OF ACTION SPACE:' + str(env.action_space))
 print('ACTION NAME:' + str(env.unwrapped.get_action_meanings()))
 
 for eps in range(num_eps):
+    print('Episode: %d' % eps)
     # initialize the environment and state.
     env.reset()
     last_screen = get_screen()
